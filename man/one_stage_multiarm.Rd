@@ -2,84 +2,147 @@
 % Please edit documentation in R/one_stage_multiarm.R
 \name{one_stage_multiarm}
 \alias{one_stage_multiarm}
-\title{Calculate the sample size and other design parameters for an one-stage K-arm trial using the root-K
-rule for the allocation ratio}
+\title{Calculate the sample sizes and other design parameters for an one-stage K-experimental arm trial
+using the root-K rule for the allocation ratio, controlling for FWER or PWER}
 \usage{
-one_stage_multiarm(K, fwer, marginal.power, delta, seed = 123)
+one_stage_multiarm(
+  K,
+  fwer = NULL,
+  pwer = NULL,
+  marginal.power,
+  delta,
+  seed = 123
+)
 }
 \arguments{
 \item{K}{the number of experimental arms}
 
-\item{fwer}{the family-wise type I error rate}
+\item{fwer}{the family-wise type I error rate, default to be null, users need to choose
+between controlling for fwer or pwer and input a value for this argument if choosing fwer}
+
+\item{pwer}{the pair-wise type I error rate, default to be null, users need to input a value
+for this argument if controlling for pwer}
 
 \item{marginal.power}{the marginal power for each experimental-control comparison}
 
-\item{delta}{the standardized clinical effect size expected to be detected
+\item{delta}{the standardized effect size expected to be detected
 in the trial}
 
-\item{seed}{an integer for random number generation for numerically evaluating integration, default = 123}
+\item{seed}{an integer used in random number generation for numerically evaluating integration,
+default = 123}
 }
 \value{
-\emph{n1} the sample size of each of the K experimental arms
+\emph{K} the number of experimental arms in the K-experimental arm trial (with K experimental arm
+plus a common control arm), e.g., for a 3-arm trial with 3 experimental arm and 1 control arm,
+K=3.
 
-\emph{n0_1} the sample size of the control arm
+\emph{n1} the sample size for each of the K experimental arms
 
-\emph{N1} the total sample size of a K-arm trial
+\emph{n0_1} the sample size of the common control arm
 
-\emph{z_alpha1} the critical value for the comparison between any of the K-experimental arm
-in the first period and its corresponding control
+\emph{N1} the total sample size of a K-experimental arm trial
 
-\emph{z_beta1} the value of the quantile function of the standard normal distribution with
-probability = marginal power of the K-arm trial
+\emph{z_alpha1} the critical value for the comparison between any of the
+K-experimental arm and its corresponding control
 
-\emph{Power1} the disjunctive power of the K-arm trial defined as the
+\emph{FWER1} the family-wise type-I error rate
+
+\emph{z_beta1} the quantile of the marginal power, i.e., qnorm(marginal power)
+
+\emph{Power1} the disjunctive power of the K-experimental arm trial defined as the
 probability of rejecting at least one of the K experimental arms under the
 alternative hypothesis
 
 \emph{corMat1} the correlation matrix of the Z-test statistics
+
+\emph{delta} the standardized effect size expected to be detected in the K-experimental arm trial
 }
 \description{
-This design is to find the required sample sizes and the associated critical value to control the overall
-type I error rate (FWER) and achieve the user-specified marginal (i.e., experimental-wise or pairwise)
-power. Calculate required sample sizes for each of the experimental arm (n1), the control arm (n0_1),
-the total sample size (N1) and the critical value z_alpha1 in a K-arm trial setting (K experimental arms
-and 1 common control arm).
+This function can be used to design a K-experimental arm trial (with K experimental arm plus a common
+control arm) given a pre-planned family-wise error rate (or pair-wise error rate) and with a
+user-specified marginal power. It calculates required sample sizes for each of the
+experimental arm (n1), the control arm (n0_1), the total sample size (N1), and the critical
+value (z_alpha1) for each experimental arm-control comparison in the trial.
 }
 \details{
-Given the number of experimental arm (K), the family-wise type I error rate, the
-marginal power for each experimental-control comparison and the standardized effect
-size to calculate the sample size and other design parameters for the K-experimental
-arm trial with one control arm.
+Given the number of experimental arms (K), the family-wise type I error rate (or the pair-wise
+type-I error-rate), the marginal power for each experimental-control comparison and the
+standardized effect size, to calculate the sample sizes and other design parameters for the
+K-experimental arm trial (with K-experimental arm in addition to one control arm).
 }
 \examples{
+# controlling for FWER
 one_stage_multiarm(K = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)
+#$K
+#[1] 2
+#
 #$n1
 #[1] 101
-
+#
 #$n0_1
 #[1] 143
-
+#
 #$N1
 #[1] 345
-
+#
 #$z_alpha1
 #[1] 2.220604
-
+#
+#$FWER1
+#[1] 0.025
+#
 #$z_beta1
 #[1] 0.8416212
-
+#
 #$Power1
 #[1] 0.9222971
-
+#
 #$corMat1
 #[,1]      [,2]
 #[1,] 1.0000000 0.4142136
 #[2,] 0.4142136 1.0000000
-
+#
+#$delta
+#[1] 0.4
+#
+# controlling for pwer
+one_stage_multiarm(K = 2, pwer = 0.025, marginal.power = 0.8, delta = 0.4)
+#$K
+#[1] 2
+#
+#$n1
+#[1] 84
+#
+#$n0_1
+#[1] 119
+#
+#$N1
+#[1] 287
+#
+#$z_alpha1
+#[1] 1.959964
+#
+#$FWER1
+#[1] 0.04647892
+#
+#$z_beta1
+#[1] 0.8416212
+#
+#$Power1
+#[1] 0.9222971
+#
+#$corMat1
+#[,1]      [,2]
+#[1,] 1.0000000 0.4142136
+#[2,] 0.4142136 1.0000000
+#
+#$delta
+#[1] 0.4
 }
 \references{
-\verb{    }Pan, H., Yuan, X. and Ye, J. (2022). An optimal two-period multi-arm confirmatory platform design
-with adding new arms. Manuscript submitted for publication.
+\verb{    }Pan, H., Yuan, X. and Ye, J. (2022). An optimal two-period multiarm
+platform design with new experimental arms added during the trial. Manuscript submitted for
+publication.
 
 \verb{    }Dunnett, C. W. (1955). A multiple comparison procedure for comparing
 several treatments with a control. Journal of the American Statistical

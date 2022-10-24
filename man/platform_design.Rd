@@ -2,13 +2,15 @@
 % Please edit documentation in R/platform_design.R
 \name{platform_design}
 \alias{platform_design}
-\title{Design of an optimal two-period multi-arm platform trial with delayed arms}
+\title{Design an optimal two-period multiarm platform trial with new experimental arms added
+during the trial, controlling for FWER or PWER}
 \usage{
 platform_design(
   nt,
   K,
   M,
-  fwer,
+  fwer = NULL,
+  pwer = NULL,
   marginal.power,
   min.marginal.power = marginal.power,
   delta,
@@ -16,134 +18,179 @@ platform_design(
 )
 }
 \arguments{
-\item{nt}{the number of patients already enrolled on each of the K experimental arms in
-the first period at the time the new arms are added}
+\item{nt}{the number of patients already enrolled on each of the K initial experimental arms
+at the time the M new arms are added.}
 
-\item{K}{the number of experimental arms in the  first period in a two-period K+M trial}
+\item{K}{the number of experimental arms in the first period in a two-period K+M-experimental arm trial}
 
-\item{M}{the number of delayed (newly added) experimental arms added in the second period}
+\item{M}{the number of new experimental arms added at the start of the second period}
 
-\item{fwer}{the family-wise error rate (FWER) to be controlled, default to be the same throughout
-the trial}
+\item{fwer}{the family-wise type I error rate, default to be null, users need to choose
+between controlling for fwer or pwer and input a value for this argument if fwer is chosen}
 
-\item{marginal.power}{the marginal power to achieve in the first period in a two-period K+M trial}
+\item{pwer}{the pair-wise type I error rate, default to be null, users need to choose between
+controlling for fwer or pwer and input a value for this argument if pwer is chosen}
 
-\item{min.marginal.power}{the user-defined lower limit of the marginal power in the K+M
-trial (with K+M experimental arms and 1 common control arm), default to be the marginal
-power in the first period}
+\item{marginal.power}{the marginal power for each experimental-control comparison}
 
-\item{delta}{the standardized clinical effect size expected to be detected in the trial}
+\item{min.marginal.power}{the user-defined lower limit of the marginal power in the K+M-experimental arm
+trial, default to be the same as the marginal power}
 
-\item{seed}{an integer for random number generation for numerically evaluating integration, default = 123}
+\item{delta}{the standardized effect size expected to be detected in the trial}
+
+\item{seed}{an integer used in random number generation for numerically evaluating
+integration, default = 123.}
 }
 \value{
-The function returns a list, including \bold{designs}, \bold{flag.dp}, \bold{flag.mp}, and \bold{flag.dpmp}.
+The function returns a list, including \bold{design_Karm}, \bold{designs},
+\bold{flag.dp}, \bold{flag.mp}, and \bold{flag.dpmp}.
 
-\bold{designs} contains the recommended optimal design parameters for periods 1 and 2
-including:
+\bold{design_Karm} contains the design parameters for the K-experimental arm trial including:
 
-\verb{    }\emph{n1} and \emph{n0_1}, the sample sizes of each of the K experimental arms and the
-concurrent control, respectively, in the first period
+\verb{    }\emph{K}, the number of experimental arms
 
-\verb{    }\emph{n2} and \emph{n0_2}, the updated sample sizes of each of the K + M experimental
-arms and its corresponding concurrent control, respectively, after adding M experimental arms in the second period
+\verb{    }\emph{n1}, the sample size for each of the K experimental
+arms
 
-\verb{    }\emph{nt} and \emph{n0t}, the number of patients already enrolled on each of the K
-experimental arms and the control arm, respectively, in the first period at the time the M new
+\verb{    }\emph{n0_1}, the sample size of the common control arm
+
+\verb{    }\emph{N1} the total sample size of a K-experimental arm trial
+
+\verb{    }\emph{z_alpha1}, the critical value for the comparison between any of the K
+experimental arms and the control
+
+\verb{    }\emph{FWER1}, the family-wise error rate
+
+\verb{    }\emph{z_beta1}, the quantile of the marginal power, i.e., qnorm(marginal
+power)
+
+\verb{    }\emph{Power1}, the disjunctive power
+
+\verb{    }\emph{cor0}, the correlation of Z-test statistics between any two of the K
+experimental arms
+
+\verb{    }\emph{delta}, the standardized  effect size expected to be detected in the
+K-experimental arm trial
+
+\bold{designs} contains the recommended optimal design parameters for the K+M-experimental arm
+trial including:
+
+\verb{    }\emph{n2} and \emph{n0_2}, the sample sizes of each of the K+M experimental
+arms and its corresponding concurrent control, respectively
+
+\verb{    }\emph{nt} and \emph{n0t}, the number of patients already enrolled on each
+of the K initial experimental arms and the control arm, respectively, at the time the M new
 arms are added
 
-\verb{    }\emph{nc}, the updated total sample size of the control arm
-after adding M experimental arms in the second period, i.e., the sum of concurrent (n0_2)
-and nonconcurrent (n0t) controls
+\verb{    }\emph{nc}, the total sample size of the control arm for the k+M trial, i.e.
+, the sum of the concurrent (n0_2) and nonconcurrent (n0t) controls
 
-\verb{    }\emph{N2}, the total sample size of the two-period K+M experimental arm (and 1 control
-arm) platform trial
+\verb{    }\emph{N2}, the total sample size of the two-period K+M-experimental arm trial
 
-\verb{    }\emph{A1},  the allocation ratio (control to experimental arm) before the M new
-experimental arms are added and after the initial K experimental arms end
+\verb{    }\emph{A1}, the allocation ratio (control to experimental arm) before the
+M new experimental arms are added and after the initial K experimental arms end
 
-\verb{    }\emph{A2},  the allocation ratio after the M new experimental arms are added and before
-the initial K experimental arms end
+\verb{    }\emph{A2}, the allocation ratio (control to experimental arm) after the M
+new experimental arms are added and before the initial K experimental arms end
 
-\verb{    }\emph{cor1}, the correlation of Z-test statistics between any two of the K initially opened
-experimental arms (or between any two of the M newly added arms)
+\verb{    }\emph{cor1}, the correlation of Z-test statistics between any two of the K
+initial experimental arms (or between any two of the M new arms)
 
-\verb{    }\emph{cor2}, the correlation of Z-test statistics between any pair of one initially
-opened and one newly added experimental arm
+\verb{    }\emph{cor2}, the correlation of Z-test statistics between any pair of one
+initially opened and one newly added experimental arm
 
-\verb{    }\emph{critical_value1}, the critical value for the comparison between any of the K
-experimental arms in the first period and the corresponding control
+\verb{    }\emph{critical_value2}, the critical value for the comparison between each
+experimental arm and the concurrent control in the K+M-experimental arm trial
 
-\verb{    }\emph{critical_value2}, the critical value for the comparison between any of the K + M
-experimental arms in the second period and the corresponding control
+\verb{    }\emph{mariginal.power2}, the marginal power for the K+M-experimental arm trial
 
-\verb{    }\emph{marginal.power1} and \emph{marginal.power2}, the marginal power for the first
-and second period, respectively
+\verb{    }\emph{disjunctive.power2}, the disjunctive power for the K+M-experimental arm trial
 
-\verb{    }\emph{disjunctive.power1} and \emph{disjunctive.power2}, the disjunctive power for the
-first and second period, respectively
+\verb{    }\emph{FWER2}, the family-wise type-I error rate for the K+M-experimental arm trial
 
-\verb{    }\emph{standardized_effect_size}, the standardized clinical effect size
-expected to be detected in the trial
+\verb{    }\emph{delta}, the standardized effect size expected to be detected in the
+K+M-experimental arm trial
+
+\verb{    }\emph{save}, the number of patients saved in the K+M-experimental arm trial compared to
+conducting one K-experimental arm and one M-experimental arm trial separately.
 
 \bold{flag.dp}, \bold{flag.mp}, and \bold{flag.dpmp} indicate if the lower limit of
-disjunctive power, marginal power, and both of them has(have) met, respectively.
+disjunctive power, marginal power, or both of them has(have) met, respectively
 }
 \description{
-Find optimal design(s), provide the design parameters for a two-period K+M experimental
-arm platform trial
+Find optimal design(s) for a two-period K+M experimental arm platform trial given a
+user-specified family-wise error rate (or pair-wise error rate) and marginal power. The
+K+M-experimental arm trial has K experimental arms and one control arm during the first period, and later M
+experimental arms are added on the start of the second period. The one common control arm is
+shared among all experimental arms across the trial. The function calculates required sample
+sizes for each of the experimental arm (n2), the concurrent control (n0_2), the total sample
+size (N2), the allocation ratios (A1 & A2), and the critical value (z_alpha1) for each
+experimental arm-control comparison in the trial. The number of patients saved in a K+M-experimental arm
+trial compared to conducting one K-experimental arm and one M-experimental arm trial separately is also provided. Users
+can choose to control for either FWER or PWER in the trial.
 }
 \details{
-Providing an optimized design in terms of minimizing the total sample size for adding M additional
-experimental arms in the middle of a clinical trial which originally (in the first period) have K
-experimental arms and 1 control arm, given user-defined FWER and marginal power.
+Providing an optimized design in terms of minimizing the total sample size for adding M
+additional experimental arms in the middle of a clinical trial which originally
+have K experimental arms and 1 control arm, given user-defined FWER (or PWER) and marginal
+power. The optimal design for the K+M-experimental arm trial exists only if flag.dpmp = 0. It means that
+the  optimal design can be found to keep both marginal and disjunctive power levels no less
+than those in the corresponding K-experimental arm trial. If flag.dpmp = 1 and flag.mp = 1, it means the
+optimal design to maintain both mariginal and disjunctive power levels can not be found, but
+the a design with the disjunctive power no less than its counterpart in the K-experimental arm trial is
+returned in \bold{designs}.
 }
 \examples{
-\donttest{platform_design(nt = 30, K = 2, M = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)}
-
+\donttest{platform_design(nt = 30, K = 2, M = 2, fwer = 0.025, marginal.power = 0.8,
+ delta = 0.4)}
 #flag.dpmp == 0, lower limits of marginal and disjunctive power are both met
+#
+#$design_Karm
+#   K  n1 n0_1  N1  z_alpha1 FWER1   z_beta1      Power1      cor0   delta
+# 1 2 101  143 345  2.220604 0.025 0.8416212   0.9222971 0.4142136   0.4
+#
 #$designs
-#      n1  n0_1  n2 n0_2 nt n0t  nc  N2
-#15669 101  143 107  198 30  43 241 669
-#15994 101  143 106  202 30  43 245 669
-#16315 101  143 105  206 30  43 249 669
-#16632 101  143 104  210 30  43 253 669
-
-#        A1       A2       cor1      cor2         critical_value1 critical_value2
-#15669 1.414214 2.012987 0.3508197 0.2746316        2.220604        2.475233
-#15994 1.414214 2.092105 0.3441558 0.2708949        2.220604        2.475790
-#16315 1.414214 2.173333 0.3376206 0.2671464        2.220604        2.476330
-#16632 1.414214 2.256757 0.3312102 0.2633910        2.220604        2.476854
-
-#          marginal.power1 marginal.power2 disjunctive.power1 disjunctive.power2
-#15669             0.8       0.8001100          0.9222971          0.9853799
-#15994             0.8       0.8003363          0.9222971          0.9857541
-#16315             0.8       0.8003878          0.9222971          0.9860900
-#16632             0.8       0.8002699          0.9222971          0.9863903
-
- #          standardized_effect_size
-#15669          0.4
-#15994          0.4
-#16315          0.4
-#16632          0.4
-
+#       n2 n0_2 nt n0t  nc  N2
+#15669 107  198 30  43 241 669
+#15994 106  202 30  43 245 669
+#16315 105  206 30  43 249 669
+#16632 104  210 30  43 253 669
+#
+#        A1       A2       cor1      cor2          critical_value2
+#15669 1.414214 2.012987 0.3508197 0.2746316       2.475233
+#15994 1.414214 2.092105 0.3441558 0.2708949       2.475790
+#16315 1.414214 2.173333 0.3376206 0.2671464       2.476330
+#16632 1.414214 2.256757 0.3312102 0.2633910       2.476854
+#
+#      marginal.power2 disjunctive.power2
+#15669  0.8001100      0.9853799
+#15994  0.8003363      0.9857541
+#16315  0.8003878      0.9860900
+#16632  0.8002699      0.9863903
+#
+#         FWER2    delta     save
+#15669    0.025      0.4       21
+#15994    0.025      0.4       21
+#16315    0.025      0.4       21
+#16632    0.025      0.4       21
+#
 #$flag.dp
 #[1] 0
-
+#
 #$flag.mp
 #[1] 0
-
+#
 #$flag.dpmp
 #[1] 0
-
 }
 \references{
-\verb{    }Pan, H., Yuan, X. and Ye, J. (2022). An optimal two-period multi-arm confirmatory platform design
-with adding new arms. Manuscript submitted for publication.
+\verb{    }Pan, H., Yuan, X. and Ye, J. (2022). An optimal two-period multiarm
+platform design with new experimental arms added during the trial. Manuscript submitted for
+publication.
 
 \verb{    }Dunnett, C. W. (1955). A multiple comparison procedure for comparing
-several treatments with a control. Journal of the American Statistical
-Association, 50(272), 1096-1121.
+several treatments with a control. Journal of the American Statistical Association, 50(272),
+1096-1121.
 }
 \author{
 \verb{    }Xiaomeng Yuan, Haitao Pan

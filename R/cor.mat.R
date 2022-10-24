@@ -1,56 +1,51 @@
-##' Calculate the correlation matrix of the z-statistics in the two-period multi-arm platform
+##' Calculate the correlation matrix of the z-statistics in the two-period K+M-experimental arm platform
 ##' design with delayed arms, given K, M, n, n0 and n0t.
 ##'
 ##' Given K, M, n, n0 and n0t, calculate the correlation matrix of the z-statistics in the
-##' two-period K+M experimental arm trial with one common control arm.
+##' two-period K+M experimental arm trial (with one common control arm).
 ##'
-##' @title Calculate the correlation matrix of the z-statistics for in a two-period
-##'        multi-arm platform design with delayed arms
-##' @param K the number of experimental arms in the  first period in a two-period K+M trial
-##' @param M the number of delayed additional experimental arms added in the second period,
-##'        default = 0 for calculating the correlation matrix of the Z-test statistics for a
-##'        K-experimental arm trial in the first period
-##' @param n a positive integer, which is the sample size in each of the experimental arms
-##' @param n0 a positive integer, which is the sample size of the control for each of the
-##'        experimental arms
-##' @param n0t the number of patients already enrolled in the control arm when delayed
+##' @title Calculate the correlation matrix of the z-statistics for a two-period
+##'        K+M-experimental arm platform design with delayed arms
+##' @param K the number of experimental arms in the first period in a two-period K+M-experimental arm trial
+##' @param M the number of new experimental arms added in the beginning of the second period
+##'  in a two-period K+M-experimental arm trial, default = 0 for calculating the correlation matrix of the
+##'  Z-test statistics when used for a K-experimental arm trial
+##' @param n the sample size in each of the experimental arms in a two-period K+M-experimental arm trial
+##' @param n0 the sample size of the concurrent control for each experimental arm in a
+##'  two-period K+M-experimental arm trial experimental arms
+##' @param n0t the number of patients already enrolled in the control arm when new
 ##'        experimental arms are added, default to NULL for calculating correlation matrix of
-##'        the k-experimental arm trial in the first period
-##'
+##'        the K-experimental arm trial
 ##' @return \emph{cormat}, the correlation matrix of Z-test statistics in the
-##'         two-period K+M experimental arm trial with one common control arm, or that in the
-##'         k-experimental arm trial in the first period when M = 0
-##'
+##'         two-period K+M-experimental arm trial with one common control arm, or that in the
+##'         K-experimental arm trial when M = 0
 ##' @export
 ##' @examples
 ##' cor.mat(K = 2, M = 0, n = 101, n0 = 143)
-##'
 ##' #$cormat
 ##' #        [,1]      [,2]
 ##' #[1,] 1.0000000 0.4139344
 ##' #[2,] 0.4139344 1.0000000
-##'
+##' #
 ##' #$cor1
 ##' #[1] 0.4139344
-##'
+##' #
 ##' #$cor2
 ##' #NULL
-##'
-##'  cor.mat(K = 2, M = 2, n = 107, n0 = 198, n0t = 43)
-##'
+##' #
+##' cor.mat(K = 2, M = 2, n = 107, n0 = 198, n0t = 43)
 ##' #$cormat
 ##' #      [,1]      [,2]      [,3]      [,4]
 ##' #[1,] 1.0000000 0.3508197 0.2746316 0.2746316
 ##' #[2,] 0.3508197 1.0000000 0.2746316 0.2746316
 ##' #[3,] 0.2746316 0.2746316 1.0000000 0.3508197
 ##' #[4,] 0.2746316 0.2746316 0.3508197 1.0000000
-##'
+##' #
 ##' #$cor1
 ##' #[1] 0.3508197
-##'
+##' #
 ##' #$cor2
 ##' #[1] 0.2746316
-##'
 
 cor.mat <- function(K, M = 0, n, n0, n0t = NULL) {
     ntrt <- K + M

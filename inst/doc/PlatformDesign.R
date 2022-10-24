@@ -50,10 +50,6 @@ Omega2_min <- multi$Power1
 Omega2_min
 
 ## -----------------------------------------------------------------------------
-S <- 690
-S
-
-## -----------------------------------------------------------------------------
 pair3 <- admiss(n1=101, n0_1=143, nt=30, ntrt=4, S=690)
 
 ggplot(data=pair3, aes(x=Var1, y=Var2)) +
@@ -69,4 +65,8 @@ ggplot(data=pair3, aes(x=Var1, y=Var2)) +
 ## ---- eval=F------------------------------------------------------------------
 #  design <- platform_design(nt = 30, K = 2, M = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)
 #  design$designs
+
+## ---- eval=F------------------------------------------------------------------
+#  design2 <- platform_design(nt=30, K=2, M=2, pwer=0.025, marginal.power=0.8, delta=0.4,seed=123)
+#  design2$designs
 

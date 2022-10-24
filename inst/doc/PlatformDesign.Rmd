@@ -21,13 +21,50 @@ library(PlatformDesign)
 library(ggplot2)
 ```
 
-This vignette provides step-by-step guidance for designing an optimal two-period multi-arm platform trial with delayed arms using the package `PlatformDesign`. Although the design method suits any K + M trial (K and M can be any positive integer), the example here shows how to design a 2 + 2 trial. The 2 + 2 trial begins with two experimental arms and one control arm in the first period and adds two new experimental arms at the start of the second period. (See Fig 1 for the scheme.) The goal of the proposed design method is to find the optimal design with a minimum total sample size under two prerequisites. Those prerequisites are 1) keeping FWER at the same user-defined level and 2) making the marginal and disjunctive power equal to or greater than their counterparts in the first period after adding the M new arms. For users who are less interested in the theoretical details, you can skip other steps and focus on Steps 1, 7, 13, and 14.
+This vignette provides a guidance for designing an optimal two-period K+M-experimental arm platform trial with M delayed experimental arms added during the trial using the package `PlatformDesign`, controlling for family-wise type-I error rate (FWER) or pair-wise type-I error rate (PWER). The K+M-experimental arm trial has K experimental arms and one control arm during the first period, and later M experimental arms are added on the start of the second period. The one common control arm is shared among all experimental arms across the trial. The design method suits any K+M-experimental arm trial, with the examples here shows how to design a 2+2-experimental arm trial (see Fig 1 for the scheme). The goal of the proposed method is to find the optimal design with a minimum total sample size while making the marginal and disjunctive power no less than their counterparts in the K-experimental arm trial it is based on, controlling for FWER or PWER. 
 
-![Fig 1. Schema of a two-period 2+2-arm platform trial](../vignettes/newArm.PNG)
+![Fig 1.Schema of a two-period 2+2-experimental arm
+platform trial. Left part of the figure shows a traditional
+three-arm trial, in the context of this paper, we refer it as
+a 2-experimental arm trial as it has 2 experimental arms
+and 1 common control. In the right part of this figure, it is
+the 2+2-experimental arm trial. During the first period, the
+2+2-experimental arm trial has two experimental arms, Trt
+1 and Trt 2 (light blue segments), and a control arm (the
+dark blue segment). The first vertical line (solid) separates
+the first and second period of the 2+2-experimental arm
+trial, and indicates the opening of the two new experimental
+arms, Trt 3 and Trt 4. The second vertical line (dashed)
+separates two parts of the second period, and indicates the
+closing of Trt 1 and Trt 2. In the first part of the second
+period, the control arm (the dark purple segment) is shared
+among the four experimental arms (light purple segments).
+During the second part of the second period, the control
+(dark green), Trt 3, and Trt 4 (light green) continue to accrue
+patients until reaching the planned sample sizes. The
+nt and n0t (blue brackets) indicate the numbers of patients
+enrolled in each of Trt 1 and Trt 2, and the control, respectively,
+when Trt 3 and Trt 4 are added. The n1 and n01
+(orange brackets) indicate the sample sizes for each of the
+two experimental arms and the control, respectively, in the
+2-experimental arm trial. The n2 and n02 (green brackets)
+indicate the sample sizes for each of the four experimental
+arms and their corresponding concurrent control in the
+two-period 2+2-experimental arm trial. A1 denotes the allocation
+ratio (control to experimental arm) during the first
+period of the 2+2-experimental arm trial. A2 denotes the
+allocation ratio during the the first part of the second period,
+when all four experiments arms are open. A3 is equal to A1.](../vignettes/newArm.PNG)
 
-## step-by-step algorithm 
+## An example of the optimal two-period multiarm trial design with delayed arms, controlling for FWER
+The following steps contain two parts: 1) Steps 1 to 5 derive the design parameters in the K-experimental arm trial that the K+M-experimental arm trial is based on. The K+M-experimental
+arm trial is based on the K-experimental arm trial in the sense that we will keep the same FWER and marginal power for the K+M-experimental arm trial as in the K-experimental arm trial, despite M new experimental arms are added during the second period of the K+M experimental
+arm trial. 2) Steps 6 to 14 illustrate how the design parameters are calculated for the K+M-experimental arm trial.
+
+For users who are less interested in the theoretical details, you can skip other steps and focus on Steps 1, 7, 13, and 14.
+
 ### Step 1: initial setup
-Four design parameters for the first period of the design before adding new arms should be pre-specified: the number of initially opened experimental arms, the family-wise error rate denoted as $FWER_1$, the marginal type II error $\beta_1$, and the control arm allocation ratio (control to each experimental arm) denoted as $A_1$. In our method, we use $A_1=\sqrt{K}$ according to the K-root optimal allocation rule. In the following code, we assume $K=2$, $FWER_1=0.025$, $\beta_1=0.2$, $A_1=\sqrt{2}$. $z_{\beta_1}$ (z_beta1 in the following code) is the corresponding critical value for the power of $1-\beta_1$.
+Four design parameters for the K-experimental arm trial should be pre-specified: the number of experimental arms ($K$), the family-wise error rate ($FWER_1$), the marginal type II error ($\beta_1$), and the allocation ratio (control-to-each experimental arm, denoted as $A_1$). In our method, we use $A_1=\sqrt{K}$, according to the K-root optimal allocation rule. In the following code, we assume $K=2$, $FWER_1=0.025$, $\beta_1=0.2$, and $A_1=\sqrt{2}$. In addition, $z_{\beta_1}$ (\texttt{z$\_$beta1} in the following code) is the corresponding critical value for the power of $1-\beta_1$.
 ```{r}
 K <- 2
 FWER_1 <- 0.025
@@ -36,16 +73,15 @@ z_beta1 <- qnorm(1-beta1) #z_(1-beta1)
 A1 <- sqrt(K)
 ```
 
-
 ### Step 2: Correlation Matrix 1
 We use $Z_1$ and $Z_2$ to denote the two test statistics for comparing the two experimental arm  to the control in the original design. Given $A_1$, the correlation between $Z_1$ and $Z_2$ (denoted as $\rho_0$) and the correlation matrix (denoted as $\Sigma_{1}$) can be calculated (see below).
 
-First, by plugging $n_{1}$ and $n_{01}$ into formula (14) we have,
+First, we have,
 $$\rho_{0} = \frac{n_{0kk^{'}}}{\frac{(n_{01})^{2}}{n_{1}}+n_{01}}$$
-where $n_1$ is the number of patients on each of the experimental arm and $n_{01}$ is the number of patients on the control in the first period.
+where $n_1$ is the number of patients on each of the experimental arm, $n_{01}$ is the number of patients on the control in the K-experimental arm trial, and $n_{0kk^{\prime}}$ is number of control patients shared between 2 experimental arms $k$ and $k'$.
 
 
-Since the two experimental arms share a common control arm in the first period, that is, $n_{0kk^{'}}=n_{01}$. The correlation of $Z_1$ and $Z_2$ is computed as
+Since the two experimental arms share a common control arm, that is, $n_{0kk^{'}}=n_{01}$. The correlation of $Z_1$ and $Z_2$ is computed as
 $$\rho_0 = \frac{1}{(n_{01}/n_{1}+1)}=\frac{1}{(A_1+1)}=0.4142$$
 
 We can see that in our "2+2"-experimental arm example, where K=2, we have
@@ -57,7 +93,7 @@ $$\Sigma_{1} =\begin{bmatrix}
  0.4142& 1
 \end{bmatrix}$$
 
-Based on the above description, the function `one_stage_multiarm` can be used to find $\rho_0$ and the correlation matrix $\Sigma_1$ of $Z_1$ and $Z_2$ shown as below. 
+Based on the above description, the function `one_stage_multiarm` can be used to find $\rho_0$ and the correlation matrix $\Sigma_1$ of $Z_1$ and $Z_2$ as shown below. 
 ```{r}
 multi <- one_stage_multiarm(K = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)
 corMat1 <- multi$corMat1
@@ -65,7 +101,7 @@ corMat1
 ```
 
 ### Step 3: Critical Value 1
-Given $K$, $\Sigma_{1}$ and $FWER_1$, we can find the associated critical value (denoted as $z_{1-\alpha_1}$) for the marginal type I error rate in the original design (denoted as $\alpha_1$) based on the following equation.
+Given $K$, $\Sigma_{1}$ and $FWER_1$, we can find the associated critical value (denoted as $z_{1-\alpha_1}$) for the marginal type I error rate in the 2-experimental arm trial (denoted as $\alpha_1$) based on the following equation.
 
 $$FWER_1=1-\int_{-\infty }^{z_{1-\alpha_1}}\int_{-\infty }^{z_{1-\alpha_1}}...\int_{-\infty }^{z_{1-\alpha_1}}\pi _{z}(Z(z_{1},z_{2},...z_{K}), 0, \Sigma_1 )dz_{1}dz_{2}...dz_{K}$$
 This calculation can also be achieved using the function `one_stage_multiarm`.
@@ -74,7 +110,7 @@ multi$z_alpha1
 ```
 
 ### Step 4: Sample Sizes 1
-Given $\beta_1$, $A_1=\sqrt{K}$, an effective standardized effect size $\Delta$ ($\Delta$ is assumed to be 0.4 for all experimental arms in our paper), and $z_{1-\alpha_1}$ derived from the above, we can derive sample sizes for the experimental ($n_1$) and control arms ($n_{0_1}=A_1n_1=\sqrt{K}n_1$), respectively, as shown below.
+Given $\beta_1$, $A_1=\sqrt{K}$, an effective standardized effect size $\Delta$ (assumed to be 0.4 for all experimental arms in our paper), and $z_{1-\alpha_1}$ derived above, we can derive sample sizes for the experimental ($n_1$) and control arms ($n_{0_1}=A_1n_1=\sqrt{K}n_1$), respectively, as shown below.
 
 Since we have
 
@@ -89,7 +125,7 @@ and $$n_{0_{1}}= \frac{(z_{\alpha_1}+z_{\beta_1})^2}{\Delta^2}(1+\sqrt{K})$$
 In sum, the total sample size of the K-experimental arm trial is 
 $$N_1=Kn_{1}+n_{0_{1}}$$
 
-With our 2+2 trial example, we again use the function `one_stage_multiarm` to derive the sample sizes for the first period.
+With our "2+2" example, we again use the function `one_stage_multiarm` to derive the sample sizes for the first period.
 ```{r}
 multi$n1
 multi$n0_1
@@ -101,14 +137,14 @@ multi$N1
 With $\beta_1$ and  $\Sigma_{1}$, we can also derive the overall (disjunctive) power $\Omega1=0.922$ based on equation below. 
 
 $$\Omega_{1}=1-\int_{-\infty }^{z_{\beta1}}\int_{-\infty }^{z_{\beta1}}...\int_{-\infty }^{z_{\beta1}}\pi _{z}(Z(z_{1},z_{2},...z_{K}), 0, \sum )dz_{1}dz_{2}...dz_{K}$$
-This result is also included as part of the output from the function `one_stage_multiarm` by `$Power1`.
+This result is also included as part of the output from the function `one_stage_multiarm`, i.e., `$Power1`.
 ```{r}
 multi$Power1
 ```
 
 From the above outputs, we can see that the computed disjunctive power is 0.922.
 
-Based Steps 1 to 5, we demonstrate given $K, FWER_1$, marginal power $1-\beta_1$ and the standardized effect size $\Delta$, how to derive the marginal type I error rate $\alpha_1$ and its critical value, sample size $n_1$ for each of the experimental arm and $n_{0_1}$ for the control arm, and disjunctive power $\Omega_1$ for the first period of the platform design before adding new arms. 
+Based Steps 1 to 5, we demonstrated given $K, FWER_1$, marginal power $1-\beta_1$ and the standardized effect size $\Delta$, how to derive the marginal type I error rate $\alpha_1$ and its corresponding critical value, sample size $n_1$ for each of the experimental arm and $n_{0_1}$ for the control arm, and disjunctive power $\Omega_1$ for the K-experimental arm trial. 
 
 In sum, the function `one_stage_multiarm`  in R package `PlatformDesign` can complete step 1 to 5 all at once. Below are the complete outputs generated by applying this function.
 ```{r}
@@ -117,8 +153,8 @@ multi
 
 Based on these knowledge, we can introduce our proposed methods when adding new arms in the following from steps 6 to 14.
 
-### Step 6: Time to Add New Arms
-Timing is the first component to consider if planning to add new experimental arms during a study. In practice, we can use a fraction to denote the timing. In this paper, we use the absolute number of patients already being enrolled in the experimental arm (denoted as $n_t$) when new arms added to define the timing of adding. By this definition, at the time of adding new arms, number of patients enrolled in the control arm is $n_{0t}=[A_1n_t]$.
+### Step 6: Timing of Adding New Arms
+Timing is the first component to consider if planning to add new experimental arms during a study. In practice, we can use a fraction to denote the timing. In this paper, we use the number of patients already being enrolled in the experimental arm (denoted as $n_t$) when new arms added to define the timing of adding. By this definition, at the time of adding new arms, number of patients enrolled in the control arm is $n_{0t}=[A_1n_t]$.
 
 For example, the following codes describe a scenario if new arms are added when there have 30 patients enrolled for each of the experimental arms.
 ```{r}
@@ -130,10 +166,10 @@ n_0t
 ```
 
 ### Step 7: Initial Setup 2
-Then we need to decide the updated family-wise error rate when adding new arms, denoted as $FWER_2$. In this paper, we control the $FWER_2$ at the same level to the $FWER_1$. With $FWER_2$, we can find the updated (marginal) type I error rate (denoted as $\alpha_1$). With $\alpha_1$, we can find the updated marginal power (denoted as $\omega_2=1-\beta_2$), and then the updated disjunctive power (denoted as $\Omega_2$). We will describe these updates with details in the following steps.
+Then we need to decide the family-wise error rate when adding new arms, denoted as $FWER_2$. In this example, we control the $FWER_2$ at the same level to the $FWER_1$. With $FWER_2$, we can find the marginal type I error rate (denoted as $\alpha_1$). With $\alpha_1$, we can find the updated marginal power (denoted as $\omega_2=1-\beta_2$), and then the disjunctive power (denoted as $\Omega_2$). We will describe these updates with details in the following steps.
 
-The goal of a two-period K+M experimental arm platform design is to minimize the sample size (denoted as $N_2$) while keeping the new marginal power (denoted as $\omega_2$) and disjunctive power (denoted as $\Omega_2$) no less than their counterparts in the first period (Namely, $\omega_1$ and $\Omega_1$). That is, we set the lower limit of  $\omega_2$ (denoted as $\omega_{2min}$) to be 0.8, the lower limit of $\Omega_2$ (denoted as $\Omega_{2min}$) to be 0.92 (which is obtained by using function `one_stage_multiarm`  in the previous steps) as for our 2+2 example.
-These two limits will be used to select the recommended optimal design(s) (details later in Step 13).
+The goal of a two-period K+M experimental arm platform design is to minimize the sample size (denoted as $N_2$) while keeping the marginal power ($\omega_2$) and disjunctive power ($\Omega_2$) no less than their counterparts in the first period ($\omega_1$ and $\Omega_1$). That is, we set the lower limit of  $\omega_2$ (denoted as $\omega_{2min}$) to be 0.8, the lower limit of $\Omega_2$ (denoted as $\Omega_{2min}$) to be 0.922 (which is obtained by using function `one_stage_multiarm`  in the previous steps) as for our "2+2" example.
+These two limits will be used to select the recommended optimal design(s) (details shown in Step 13).
 ```{r}
 FWER_2 <- FWER_1
 FWER_2
@@ -144,35 +180,33 @@ Omega2_min
 ```
 
 ### Step 8: Admissible Set
-Because we need to keep $FWER_2$ equal to $FWER_1$ when adding new arms, we then have to update $n_1$ to $n_2$ and $n_{01}$ to  $n_{02}$ for each experimental arm (See figure 1). Here $n_{2}$ and $n_{02}$ are the updated sample sizes for each of the experimental arms and for the control arm after adding new arms.
+Because we need to keep $FWER_2$ equal to $FWER_1$ when adding new arms, we then have to update $n_1$ to $n_2$ and $n_{01}$ to $n_{02}$ for each experimental arm (See Fig 1). Here $n_{2}$ and $n_{02}$ are the sample sizes for each of the experimental arms and for the concurrent control in the 2+2-experimental arm trial.
 
-We define an admissible set for pairs of $(n_{2}, n_{02})$ based on the following three constraints. The first two constraints for $(n_{2}, n_{02})$ is related to the updated control allocation ratio after adding the new arms, denoted as $A_2$. In the first period with two experimental arms (before adding the new arms), the control allocation ratio is $A_1$. Once the two new experimental arms are added, we need to find an updated control allocation ratio $A_2$ to achieve desired design properties (e.g., control the FWER, achieve the marginal power, etc.). After the initially opened two experimental arms stop, the trial will again have only two experimental arms left. Therefore, the allocation ratio will go back from $A_2$ to $A_1$.
+We define an admissible set for pairs of $(n_{2}, n_{02})$ based on the following three constraints. The first two constraints for $(n_{2}, n_{02})$ is related to the allocation ratio after adding the new arms, denoted as $A_2$. In the first period with two experimental arms (before adding the new arms), the control allocation ratio is $A_1$. Once the two new experimental arms are added, we need to use an allocation ratio $A_2$ to achieve desired design properties (e.g., control the FWER and achieve the marginal power). After the initially opened two experimental arms are completed, the trial will again have only two experimental arms left. Therefore, the allocation ratio will go back from $A_2$ to $A_1$.
 
 Here we have,
 
 $$A_2=(n_{0_2}-n_{0t})/(n_2-n_t) > 0$$
 
-where $n_t$ and $n_{0t}$ are number of enrolled patients for each of the experimental arms and the control at the time of adding new arms. That is, the value of $A_2$ needs to be a non-infinite positive number. For example, the first two constraints in our 2+2 example are
+where $n_t$ and $n_{0t}$ are number of enrolled patients for each of the experimental arms and the control at the time of adding new arms. That is, the value of $A_2$ needs to be a non-infinite positive number. For example, the first two constraints in our "2+2" example are
 
 $$n_{0_2} > n_{0t}=43$$
 and $$n_2>n_t=30$$
 
-We also need to set an upper limit for the updated total sample size $N_2$. A reasonable upper limit is that $N_2$ should not exceed the required sample sizes (denoted as $S$) of separately conducting two multi-arm trials, i.e., a K-arm trial and a M-arm trial. To recap, $K$ and $M$ refer to number of experimental arms of the initially opened trial and number of later added experimental arms.
+We also need to set an upper limit for the total sample size $N_2$. A reasonable upper limit is that $N_2$ should not exceed the required sample sizes (denoted as $S$) of separately conducting two multiarm trials, i.e., a K-experimental arm trial and a M-experimental arm trial. To recap, $K$ and $M$ refer to the numbers of initially and newly added experimental arms.
 
-$$N_2=(K+M)n_2+n_{0_2}+n_{0t}= 4n_2+n_{0_2}+n_{0t}< S$$
+Therefore, S can be calculated as 
+$$
+S= \frac{(z_{1-\alpha_1}+z_{1-\beta_1})^2}{\Delta^2}(1+2\sqrt{K}+K) +
+\frac{(z_{1-\alpha_1^*}+z_{1-\beta_1})^2}{\Delta^2}(1+2\sqrt{M}+M).
+$$
 
-One sensible choice of S could be 
+, where $z_{1-\alpha_1}$ and $z_{1-\alpha_1^*}$ are the critical values for the K- and M-experimental arm trial, separately. In our "2+2" example, $z_{1-\alpha_1}=z_{1-\alpha_1^*}$ as $K=M=2$ and $S=2N_1=690$.
 
-$$S= \frac{(z_{\alpha_1}+z_{\beta_1})^2}{\Delta^2}(2+2\sqrt{K}+2\sqrt{M}+K+M)$$ 
-
-, which is the sum of the number of patients to conduct a k-arm trial and a m-arm trial separately (in another word, no overlapping among the K+M experimental arms).
-
-
-In our 1+2+2 example, we can take $$S=2N_1=690$$
-```{r}
-S <- 690
-S
-```
+Therefore, the third constraint for $(n_{2}, n_{0_{2}})$ is 
+$$
+N_2=(K+M)n_2+n_{0_2}+n_{0t}<S=690.
+$$
 
 Under the above three constraints, the admissible set of $(n_{2}, n_{0_{2}})$ can be identified using the function `admiss` (integer points in triangle area in Fig.2).  The data set `pair3` contains all $(n_{2}, n_{02})$ pairs satisfying the 3 constraints introduced above.
 ```{r}
@@ -190,7 +224,7 @@ ggplot(data=pair3, aes(x=Var1, y=Var2)) +
 ```
 
 ### Step 9: Correlation Matrix 2
-For each pair of $(n_{2}, n_{0_{2}})$ in the admissible set the updated correlation matrix of z statistics $\sum_{2}$ of four test statistics $(Z_1,Z_2,Z_3,Z_4)$ can be derived based on equation (7) in the paper, by plugging in $n_{2}$ and $n_{0_{2}}$. 
+For each pair of $(n_{2}, n_{0_{2}})$ in the admissible set the correlation matrix of z statistics, $\sum_{2}$, of four test statistics $(Z_1, Z_2, Z_3, and Z_4)$ can be derived using in $n_{2}$ and $n_{0_{2}}$. The correlation between two experimental arms is,
 
 $$\rho_{k, k^{'}} = \frac{n_{0kk^{'}}}{\frac{(n_{0_{2}})^{2}}{n_{2}}+n_{0_{2}}}$$
 
@@ -204,7 +238,7 @@ Therefore, the correlation of the Z test statistics between these two experiment
 
 $$\rho_2 = \frac{n_{0_2}-n_{0t}}{(n_{0_2}^2/n_2+n_{0_2})}$$.
 
-To be specific, in our 2+2-arm example, we have the updated $\Sigma_2$ as, 
+To be specific, in our 2+2-experimental arm example, we have $\Sigma_2$ as, 
 $$\Sigma_2 =\begin{bmatrix}
 1 & \rho_1 & \rho_2 & \rho_2\\ 
 \rho_1 &  1&  \rho_2& \rho_2\\ 
@@ -214,24 +248,24 @@ $$\Sigma_2 =\begin{bmatrix}
 
 
 ### Step 10: Critical Value 2
-Now we can use $FWER_2$ and $\Sigma_{2}$ to calculate the updated marginal type I error $\alpha_2$ and the corresponding critical value $z_{1-\alpha_2}$ for each pair of $(n_{2}, n_{02})$ in the admissible set found in \textbf{Step 8}).
+Now we can use $FWER_2$ and $\Sigma_{2}$ to calculate the marginal type I error $\alpha_2$ and the corresponding critical value $z_{1-\alpha_2}$ for each pair of $(n_{2}, n_{02})$ in the admissible set found in \textbf{Step 8}).
 
 $$FWER_2=1-\int_{-\infty }^{z_{1-\alpha_2}}\int_{-\infty }^{z_{1-\alpha_2}}...\int_{-\infty }^{z_{1-\alpha_2}}\pi _{z}(Z(z_{1},z_{2},...z_{K+M}), 0, \Sigma_2 )dz_{1}dz_{2}...dz_{K+M}$$
 
 ### Step 11: Marginal Power 2
-With $n_1$, $n_{01}$, ${\alpha_1}$, ${\beta_1}$ and ${\alpha_2}$, we can use the following equation to calculate the updated marginal power $\omega_2=1-\beta_2$ for each pair of $(n_{2}, n_{02})$ from $z_{1-\beta_2}$.
+With $n_1$, $n_{01}$, ${\alpha_1}$, ${\beta_1}$ and ${\alpha_2}$, we can use the following equation to calculate the marginal power $\omega_2=1-\beta_2$ for each pair of $(n_{2}, n_{02})$ from $z_{1-\beta_2}$.
 
 $$z_{1-\beta2 }=\sqrt{\frac{\frac{1} {n_1}+\frac{1}{n_{0_1}}}{\frac{1}{n_2}+\frac{1}{n_{0_2}}}}(z_{1-\alpha1} + z_{1-\beta1})- z_{1-\alpha2}$$ 
 
 ### Step 12: Disjunctive Power 2
-With the updated marginal power $\omega2=1-\beta_2$ and $\Sigma_2$, we can derive the new disjunctive power $\Omega_2$ for each pair of $(n_{2}, n_{0_{2}})$ using the following equation by plugging in $\beta=\beta_2$.
+With $\beta_2$ and $\Sigma_2$, we can derive the new disjunctive power $\Omega_2$ for each pair of $(n_{2}, n_{0_{2}})$ using the following equation.
 
 $$\Omega_{2}=1-\int_{-\infty }^{z_{\beta2}}\int_{-\infty }^{z_{\beta2}}...\int_{-\infty }^{z_{\beta2}}\pi _{z}(Z(z_{1},z_{2},...z_{K+M}), 0, \Sigma_2 )dz_{1}dz_{2}...dz_{K+M}$$
 
 ### Step 13: Design Selection
-In our "2+2" example, we get $\omega_2$ and $\Omega_2$ from all of the 29040 pairs of $(n_i,n_{0i})$ in the entire admissible set obtained with the function `admiss`. We then perform a 2-step selection procedure to obtain the recommended design(s): 1) first we only keep the designs with $\omega_2$ and $\Omega_2$ above or equal to $\omega_1$ and $\Omega_1$, respectively (i.e., lower limits decided in Step 7); 2) next, among those selected ones we further narrow down to the designs with the smallest sample size $N_2$, which we refer to as the recommended designs (See Fig 2).
+In our "2+2" example, we calculate $\omega_2$ and $\Omega_2$ from all of the 29040 pairs of $(n_2,n_{02})$ in the entire admissible set. We then perform a 2-step selection procedure to obtain the recommended optimal design(s): 1) first we only keep the designs with $\omega_2$ and $\Omega_2$ above or equal to $\omega_1$ and $\Omega_1$, respectively (i.e., lower limits decided in Step 7); 2) next, among those selected ones we choose the designs with the smallest total sample size $N_2$.
 
-Given $n_t$, $K$, $M$, $FWER_1$, $\omega_1$, $\omega_{2_{min}}$ and $\Delta$, the function `platform_Design` can provide the recommended designs with the minimum sample size among those having $\omega_2$ and $\Omega_2$ no less than their counterparts in the original design. The value of $\omega_{2_{min}}$ defaults to $\omega_1$, therefore we don't have to include it in the code below explicitly.
+Given $n_t$, $K$, $M$, $FWER_1$, $\omega_1$, and $\Delta$, the function `platform_Design` can provide the optimal designs with the minimum total sample size among those having $\omega_2$ and $\Omega_2$ no less than their counterparts in the K-experimental arm trial. 
 ```{r, eval=F}
 design <- platform_design(nt = 30, K = 2, M = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)
 design$designs
@@ -240,30 +274,39 @@ design$designs
 ![Fig 2. Recommended optimal designs when nt=30 in a 2+2-trial](../vignettes/software_res1.PNG)
 
 \bigskip
-As we can see from above, it is possible to have multiple different recommended pairs all having the same $N_2$. Each of the recommended designs contains a full set of parameters readily to be used for conducting a platform trial with K original and M new experimental arms added at the informational time $n_t$.
+The first part of the outputs (`$design Karm`) contains the parameters for the K-experimental arm trial. The second part (`$designs`) contains the parameters for the K+M experimental arm trial designed based on the former. From above (`$designs`), we can see it is possible to have multiple
+recommended designs which all have the same total sample size N2. We provide a full list of useful parameters for each of the recommended optimal designs.
 
-For example, if we choose the design 15669, in this trial, assuming the additional two experimental arms will be added when 30 patients have been enrolled for each of the first two experimental arms, the total sample size is 669. Among the 669, in the first period, the planned sample sizes for each of two experimental arms and for the control are $n_1=101$ and $n_{01}=143$ with allocation ratio of $A_1=1.414$. The correlation between the two test statistics is 0.35. The corresponding critical value for controlling the FWER is 2.220. The marginal power is 0.8 and corresponding disjunctive power is 0.922.
-
-Once the two additional experimental arms are added, the updated sample sizes for each of the experimental arms and the control are $n_2=107$ and $n_{02}=198$ with the "optimal allocation ratio" to be $A_2=2.01$ in the overlapping stage in the second period. In the overlapping stage, the correlation between the two test statistics is 0.27. The corresponding critical value for controlling the FWER is 2.475. The marginal power is 0.8 and corresponding disjunctive power is 0.985.
+For example, if we choose design # 15669 for this 2+2-experimental arm trial, the corresponding critical value for controlling the $FWER$ at 0.025 is 2.475. The marginal power is 0.8, and the disjunctive power is 0.985, both no less than their counterparts in the 2-experimental arm trial.
+The required total sample size is $N_2 = 669$. Among the 669 patients, in the first period the sample sizes for each experimental arm and the control are $n_t = 30$ and $n_{0t} = 43$, with an allocation ratio of $A_1 = 1.414$. Once the two additional experimental arms are added, the optimal allocation ratio changes to $A2 = 2.01$ for the overlapping stage of the second period. The allocation ratio will change back to $A_1$ once the two initial experimental arms closed to accrual. Through the entire 2+2-experimental arm trial, the sample size for each experimental arm is $n_2 = 107$. The sample size for the concurrent control of each experimental arm is $n_{02} = 198$. To be noted, the sample size for the entire control arm, concurrent and non-concurrent combined, is $n_c$ = 241. The reduction in the total sample size comparing to two separate 2-experimental arm trials is 21.
 
 ### Step 14: Final Decision
-As we can see from Step 13, although the total sample size is the same for all the 4 recommended designs, the other parameters can be different. Therefore, we can choose a final design based on our needs according to the other parameters. For example, if we would like to choose a design with the largest disjunctive power $\Omega_2$, our final choice then goes to the design in the last row of the result above (design #16632).
- 
-As a result, we also can calculate the reduction in the total sample size by comparing this 2+2  platform design to two separate 3-arm trials. The size of reduction is, 
-
-$$S-N_{2_{min}}=690-669=21$$
+As we can see from Step 13, although the total sample size is the same for all the 4 recommended designs, the other parameters can be different. Therefore, we can choose a final design based on our needs according to the other parameters. For example, if we would like to choose a design with the largest disjunctive power $\Omega_2$, our final choice goes to the design in the last row of the result above (design #16632).
 
 \bigskip
 ### Notes
-If the $\omega_{2_{min}}$ and $\Omega_{2_{min}}$ in Step 7 can not be met at the same time. The algorithm in function `platform_Design` will return the designs with smallest $N_2$ but only meets one of the two constraints. In case we are not satisfied with the result or if none of the two constraints can be met, we can choose from the two options below:
-	1. Go back to Step 7 to decrease the values of $\omega_{2_{min}}$. After that, repeat Steps 8 to 14 again. Or,
-	2. Go back to Step 6 to set up a smaller $n_t$ (and therefore smaller $n_{0t}$) - that is, increasing overlapping among initially and later added experimental arms. The rationale is the later the new arms are added, the less likely we can find designs satisfying both limits defined in Step 7. After that, repeat Steps 8 to 14 again. This is only feasible if the situation allows us to change the timing of adding new arm. If this is not possible, we can always go with the first option instead.
+If $\omega_{2_{min}}$ and $\Omega_{2_{min}}$ in Step 7 can not be met at the same time. The algorithm in function `platform_Design` will return the designs with smallest $N_2$ but only meeting one of the two limits. In case we are not satisfied with the result or if neither of the two limits can be met, we can choose from the three options below:
+	1. Go back to Step 7 to decrease the values of $\omega_{2_{min}}$. After that, repeat Steps 8 to 14 again. This can be done only if a marginal power lower than $\omega_1$ is acceptable, which
+partially compromises the goal of the design.
+	2. Go back to Step 6 to set up a smaller $n_t$ (and therefore smaller $n_{0t}$) - that is, increasing overlapping among initially and later added experimental arms. The rationale is the later the new arms are added, the less likely we can find designs satisfying both limits defined in Step 7. After that, repeat Steps 8 to 14 again. This is only feasible if the situation allows us to change the timing of adding new arm. 
+	3. Consider controlling for PWER instead of FWER as illustrated in the next example.
+	
+## An example of the optimal two-period multiarm trial design with delayed arms, controlling for PWER
+If users do not wish to control FWER, or if controlling for FWER can not be achieved given required power levels, then we recommend using the function platform Design(.) with the argument `fwer` replaced by `pwer` to plan for the K+M-experimental arm trial. If we plan to add 2 new experimental arms when 30 patients have already been enrolled in each of the 2 initial experimental arms, given the pair-wise type-I error controlled at 0.025 and the marginal power
+equal to 0.8, we can use the following code to get the design parameters. Here, five optimal designs are recommended and each row is a individual design. Notably, we can save 87 patients with this design compared to 2 separate multiarm trials.
+```{r, eval=F}
+design2 <- platform_design(nt=30, K=2, M=2, pwer=0.025, marginal.power=0.8, delta=0.4,seed=123)
+design2$designs 
+```
+![Fig 3. Recommended optimal designs when nt=30 in a 2+2-trial](../vignettes/software_res2.PNG)
+
+The main difference between using `pwer` instead of `fwer` in platform Design(.) is that it does not use the Dunnett method to derive critical values, instead, it calculates that directly from the user-defined pair-wise type I error. Notably, the upper limit $S$ for the total sample size $N_2$ that used to find the admissible set when controlling for PWER, is constructed using the multiarm trials (one K- and one M-experimental arm trial) which are also controlling for PWER in the function platform Design(.). The sample sizes for the multiarm trials (controlling for PWER) can also be calculated with the function one stage multiarm(.). Other aspects of the algorithms are similar between the two applications of the platform Design(.) function.
 
 ## Author(s)
     Xiaomeng Yuan, Haitao Pan
 
 ## References
-    1. Pan, H., Yuan, X. and Ye, J. (2022). An optimal two-period multi-arm confirmatory platform design with adding new arms. Submitted.
+    1. Pan, H., Yuan, X. and Ye, J. (2022). An optimal two-period multiarm platform design with new experimental arms added during the trial. Submitted.
 
     2. Dunnett, C. W. (1955). A multiple comparison procedure for comparing several treatments with a control. Journal of the American Statistical Association, 50(272), 1096-1121.
     

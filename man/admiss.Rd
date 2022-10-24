@@ -3,29 +3,29 @@
 \name{admiss}
 \alias{admiss}
 \title{Find the admissible set in a two-period
-multi-arm platform design with delayed arms}
+K+M-experimental arm platform design with delayed arms}
 \usage{
 admiss(n1, n0_1, nt, ntrt, S)
 }
 \arguments{
-\item{n1}{the sample size in each of the K experimental arms in the first period}
+\item{n1}{the sample size in each of the K experimental arms in the K-experimental arm trial}
 
-\item{n0_1}{the sample size of the control for each of the K experimental arms in the
-first period}
+\item{n0_1}{the sample size of the common control arm in the K-experimental arm trial}
 
-\item{nt}{the number of patients already enrolled on each of the K experimental arms in
-the first period at the time new arms are added}
+\item{nt}{the number of patients already enrolled on each of the K initial
+experimental arms when the new arms are added}
 
-\item{ntrt}{the number of experimental arms in the K+M experimental arm trial, i.e, K+M}
+\item{ntrt}{the number of experimental arms in the K+M-experimental arm trial, i.e, K+M}
 
-\item{S}{the upper limit of the total sample size for the K+M experimental arm trial. It
-usually takes the value of the sum of the sample size of two separate clinical
-trials (one with K and another with M experimental arm, each having one control
-arm). The total sample size of K (or M) experimental arm trial can be calculated
+\item{S}{the upper limit of the total sample size for the K+M-experimental arm trial. It
+usually takes the value of the sum of the sample sizes of two separate clinical
+trials (one with K and another with M experimental arms, each having one control
+arm). The total sample size of K (or M)-arm trial can be calculated
 using function one_stage_multiarm().}
 }
 \value{
-a dataframe which contains all candidate values of n2 and n0_2 in the first and second column, respectively
+a dataframe which contains all candidate values of n2 and n0_2 in its first and second
+column, respectively
 }
 \description{
 Find the admissible set of the (n2, n0_2) pairs, given n1, n0_1, nt, ntrt and S.

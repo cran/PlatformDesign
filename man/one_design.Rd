@@ -2,153 +2,166 @@
 % Please edit documentation in R/one_design.R
 \name{one_design}
 \alias{one_design}
-\title{Calculate other design parameters of a two-period multi-arm platform design given updated sample sizes}
+\title{Calculate other design parameters of a two-period K+M-experimental arm platform design given
+sample sizes}
 \usage{
-one_design(n2, n0_2, nt, K, M, fwer, marginal.power, delta, seed = 123)
+one_design(
+  n2,
+  n0_2,
+  nt,
+  K,
+  M,
+  fwer = NULL,
+  pwer = NULL,
+  marginal.power,
+  delta,
+  seed = 123
+)
 }
 \arguments{
-\item{n2}{a positive integer, which is the sample size in each of the K+M experimental arms in the second period, n2 > nt}
+\item{n2}{a positive integer, which is the sample size in each experimental arm
+in the K+M-experimental arm trial}
 
-\item{n0_2}{a positive integer, which is the sample size of the concurrent control for each of the K+M experimental arms in the in the second period}
+\item{n0_2}{a positive integer, which is the sample size of the concurrent control for each
+experimental arms in the K+M-experimental arm trial}
 
-\item{nt}{a positive integer, the number of patients already enrolled on each of the K experimental arms in the first period when the new arms are added}
+\item{nt}{a positive integer, the number of patients already enrolled on each of the K initial
+experimental arms when the M new arms are added}
 
-\item{K}{a positive integer, the number of experimental arms in the  first period in a two-period K+M trial}
+\item{K}{a positive integer, the number of experimental arms in the first period in a
+two-period K+M-experimental arm trial}
 
-\item{M}{a positive integer, the number of delayed (newly added) experimental arms added in the second period}
+\item{M}{a positive integer, the number of delayed (newly added) experimental arms added in
+the beginning of the second period of the K+M-experimental arm trial}
 
 \item{fwer}{the family-wise error rate (FWER) to be controlled, default to be the same
 throughout the trial}
 
-\item{marginal.power}{the marginal power to achieve in the first period in a two-period
-K+M trial}
+\item{pwer}{the pair-wise error rate (PWER) to be controlled, default to be the same
+throughout the trial}
+
+\item{marginal.power}{the marginal power to achieve in the K-experimental arm (and K+M-experimental arm) trial}
 
 \item{delta}{the standardized clinical effect size expected to be detected in
 the trial}
 
-\item{seed}{an integer for random number generation for numerically evaluating integration, default = 123}
+\item{seed}{an integer for random number generation for numerically evaluating integration,
+default = 123}
 }
 \value{
-\bold{designs} contains the calculated design parameters for period 1 and 2 including:
+\bold{design_Karm} contains the  design parameters for the K-experimental arm
+trial including:
 
-\verb{    }\emph{n1} and \emph{n0_1}, the sample sizes of each of the K experimental arms and the
-control arm, respectively, in the first period
+\verb{    }\emph{K}, the number of experimental arms in the K-experimental arm trial
 
-\verb{    }\emph{n2} and \emph{n0_2}, the updated sample sizes of each of the K + M experimental arms and
-its corresponding concurrent control, respectively, after adding M experimental arms in the second period
+\verb{    }\emph{n1}, the sample size for each of the K experimental
+arms in the k-experimental arm trial
 
-\verb{    }\emph{nt} and \emph{n0t}, the number of patients already enrolled on each of the K
-experimental arms and the control arm, respectively, in the first period when the new
-arms are added
+\verb{    }\emph{n0_1}, the sample size of the common control arm in the K-experimental arm trial
 
-\verb{    }\emph{nc}, the updated total sample size of the control arm after adding M
-experimental arms in the second period, i.e., the sum of concurrent (n0_2) and nonconcurrent
-(n0t) controls
+\verb{    }\emph{N1} the total sample size of a K-experimental arm trial
 
-\verb{    }\emph{N2}, the total sample size of the two-period K+M experimental arm (and 1 control
-arm) platform trial
+\verb{    }\emph{z_alpha1}, the critical value for the comparison between any of the K
+experimental arms and the control in the K-experimental arm trial
 
-\verb{    }\emph{A1},  the allocation ratio (control to experimental arm) before the M new
-experimental arms are added and after the initial K experimental arms end
+\verb{    }\emph{FWER1}, the family-wise error rate for the K-experimental arm trial
 
-\verb{    }\emph{A2},  the allocation ratio after the M new experimental arms are added and before
-the initial K experimental arms end
+\verb{    }\emph{z_beta1}, the quantile of the marginal power, i.e., qnorm(marginal
+power) for the K-experimental arm trial
 
-\verb{    }\emph{cor1}, the correlation of Z statistics between any two of the K initially opened
-experimental arms (or between any two of the M delayed arms)
+\verb{    }\emph{Power1}, the disjunctive power for the K-experimental arm trial
 
-\verb{    }\emph{cor2}, the correlation of Z statistics between any pair of one initially opened
-and one delayed experimental arm
+\verb{    }\emph{cor0}, the correlation of Z-test statistics between any two of the K
+experimental arms
 
-\verb{    }\emph{critical_value1}, the critical value for the comparison between any of the K
-experimental arms in the first period and the corresponding control
+\verb{    }\emph{delta}, the standardized  effect size  expected to be detected in the
+trial
 
-\verb{    }\emph{critical_value2}, the critical value for the comparison between any of the K + M
-experimental arms in the second period and the corresponding control
+\bold{designs} contains the recommended optimal design parameters for the K+M-experimental arm
+trial including:
 
-\verb{    }\emph{marginal.power1} and \emph{marginal.power2}, the marginal power for the first
-and second period, respectively
+\verb{    }\emph{n2} and \emph{n0_2}, the sample sizes of each of the K+M-experimental arm
+experimental arms and its corresponding concurrent control, respectively, in the K+M-experimental arm trial
 
-\verb{    }\emph{disjunctive.power1} and \emph{disjunctive.power2}, the disjunctive power for the
-first and second period, respectively
+\verb{    }\emph{nt} and \emph{n0t}, the number of patients already enrolled on each
+of the K initial experimental arms and the common control arm, respectively, at the time the
+M new arms are added
 
-\verb{    }\emph{effect_size}, the standardized clinical effect size
+\verb{    }\emph{nc}, the total sample size of the control arm for the K+M-experimental arm trial, i.e.
+, the sum of concurrent (n0_2) and nonconcurrent (n0t) controls
+
+\verb{    }\emph{N2}, the total sample size of the two-period K+M-experimental arm trial
+
+\verb{    }\emph{A1}, the allocation ratio (control to experimental arm) before the M
+new experimental arms are added and after the initial K experimental arms end
+
+\verb{    }\emph{A2},  the allocation ratio after the M new experimental arms are
+added and before the initial K experimental arms end
+
+\verb{    }\emph{cor1}, the correlation of Z-test statistics between any two of the K
+initially opened experimental arms (or between any two of the M newly added arms)
+
+\verb{    }\emph{cor2}, the correlation of Z-test statistics between any pair of one
+initially opened and one newly added experimental arm
+
+\verb{    }\emph{critical_value2}, the critical value for the comparison between each
+experimental arms and the corresponding control in the K+M-experimental arm trial
+
+\verb{    }\emph{mariginal.power2}, the marginal power for the K+M-experimental arm trial
+
+\verb{    }\emph{disjunctive.power2}, the disjunctive power for the K+M-experimental arm trial
+
+\verb{    }\emph{FWER2}, the family-wise error rate for the K+M-experimental arm trial.
+
+\verb{    }\emph{delta}, the standardized clinical effect size
 expected to be detected in the trial
+
+\verb{    }\emph{save}, the number of patients saved in the K+M-experimental arm trial compared to
+conducting one K-experimental arm and one M-experimental arm trial, separately.
 }
 \description{
-Provide other design parameters for a two-period K+M trial, given n2 and n0_2, nt, K, M, fwer and marginal
-power (of the the first period). This function serves for the purpose of spot-testing for any
-pre-specified {n, n0_2} pair. Please use \emph{platform_design()} for finding optimal values of n and n0_2.
+Provide other design parameters for a two-period K+M-experimental arm trial, given n2 and
+n0_2, nt, K, M, fwer(or pwer) and marginal power (of the K-experimental arm trial). This
+function serves for the purpose of spot-testing for any pre-specified {n,
+n0_2} pair. Please use \emph{platform_design()} for finding optimal values
+of n and n0_2, controlling for FWER (or PWER).
 }
 \details{
-Given n2 and n0_2, nt, K, M, fwer and marginal power (of the first period), provide other design
-parameters for a two-period K+M trial.
+Given n2 and n0_2, nt, K, M, fwer (or pwer) and marginal power (of the K-experimental arm trial), provide
+other design parameters for a two-period K+M-experimental arm trial.
 }
 \examples{
+# control fwer
 one_design(n2 = 107, n0_2 = 198, nt = 30, K = 2, M = 2, fwer = 0.025,
            marginal.power = 0.8, delta = 0.4)
-
-#$n1
-#[1] 101
-
-#$n0_1
-#[1] 143
-
-#$n2
-#[1] 107
-
-#$n0_2
-#[1] 198
-
-#$nt
-#[1] 30
-
-#$n0t
-#[1] 43
-
-#$nc
-#[1] 241
-
-#$N2
-#[1] 669
-
-#$A1
-#[1] 1.414214
-
-#$A2
-#[1] 2.012987
-
-#$cor1
-#[1] 0.3508197
-
-#$cor2
-#[1] 0.2746316
-
-#$critical_value1
-#[1] 2.220604
-
-#$critical_value2
-#[1] 2.475233
-
-#$marginal.power1
-#[1] 0.8
-
-#$marginal.power2
-#[1] 0.80011
-
-#$disjunctive.power1
-#[1] 0.9222971
-
-#$disjunctive.power2
-#[1] 0.9853799
-
-#$effect_size
-#[1] 0.4
-
+#$design_Karm
+#  K  n1 n0_1  N1 z_alpha1 FWER1   z_beta1    Power1      cor0 delta
+#1 2 101  143 345 2.220604 0.025 0.8416212 0.9222971 0.4142136   0.4
+#
+#$designs
+#   n2 n0_2 nt n0t  nc  N2       A1       A2      cor1      cor2 critical_value2
+#1 107  198 30  43 241 669 1.414214 2.012987 0.3508197 0.2746316        2.475233
+#
+#  marginal.power2  disjunctive.power2 FWER2 delta save
+#1    0.80011                0.9853799 0.025   0.4   21
+#
+# control pwer
+one_design(n2 = 76, n0_2 = 140, nt = 30, K = 2, M = 2, pwer = 0.025,
+             marginal.power = 0.8, delta = 0.4)
+#$design_Karm
+#  K n1 n0_1  N1 z_alpha1      FWER1   z_beta1    Power1      cor0 delta
+#1 2 84  119 287 1.959964 0.04647892 0.8416212 0.9222971 0.4142136   0.4
+#
+#$designs
+#  n2 n0_2 nt n0t  nc  N2       A1       A2      cor1      cor2 critical_value2
+#1 76  140 30  43 183 487 1.414214 2.108696 0.3518519 0.2437831        1.959964
+#  marginal.power2  disjunctive.power2      FWER2 delta save
+#1       0.8001424           0.9867451 0.08807302   0.4   87
 }
 \references{
-\verb{    }Pan, H., Yuan, X. and Ye, J. (2022). An optimal two-period multi-arm confirmatory platform design
-with adding new arms. Manuscript submitted for publication.
+\verb{    }Pan, H., Yuan, X. and Ye, J. (2022). An optimal two-period multiarm
+platform design with new experimental arms added during the trial. Manuscript submitted for
+publication.
 
 \verb{    }Dunnett, C. W. (1955). A multiple comparison procedure for comparing
 several treatments with a control. Journal of the American Statistical

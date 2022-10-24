@@ -1,17 +1,20 @@
-##' Calculate the critical value and the marginal type-I error rate given the number of experimental
-##' arms, the family-wise type I error rate and the correlation matrix of the z-statistics.
+##' Calculate the critical value and the marginal type-I error rate given the number of
+##' experimental arms, the family-wise type I error rate and the correlation matrix of the
+##' z-statistics.
 ##'
 ##' Use the number of experimental arms, the family-wise type I error rate and the correlation
-##' matrix of the Z-test statistics to calculate the marginal type I error rate and the critical value.
+##' matrix of the Z-test statistics to calculate the marginal type I error rate and the critical
+##' value.
 ##' @title Calculate the critical value and the marginal type-I error rate
 ##' @param ntrt the number of experimental arms in the trial
 ##' @param fwer the family-wise error rate (FWER) to be controlled, default to be the same
 ##'        throughout the trial
 ##' @param corMat the correlation matrix of the Z-test statistics
-##' @param seed an integer for random number generation for numerically evaluating integration, default = 123
+##' @param seed an integer used in random number generation for numerically evaluating integration,
+##'  default = 123
 ##'
-##' @return \verb{    }\emph{pairwise_alpha} the marginal type-I error rate for the comparison between
-##'         any of the experimental arm and its corresponding control
+##' @return \verb{    }\emph{pairwise_alpha} the marginal type-I error rate for the comparison
+##'  between any of the experimental arm and its corresponding control
 ##' @return \verb{    }\emph{critical_val}, the critical value for the comparison between any of
 ##'         the experimental arm and the corresponding controls
 ##' @return Other values returned are inputs.
@@ -26,29 +29,28 @@
 ##' Association, 50(272), 1096-1121.
 ##'
 ##' @examples
-##'
 ##'corMat1 <- cor.mat(K=2, M = 2, n=107, n0=198, n0t = 43)$cormat
 ##'fwer_critical(ntrt=4, fwer=0.025, corMat=corMat1)
-##'
+##' #
 ##' #$ntrt
 ##' #[1] 4
-##'
+##' #
 ##' #$fwer
 ##' #[1] 0.025
-##'
+##' #
 ##' #$corMat
 ##' #      [,1]      [,2]      [,3]      [,4]
 ##' #[1,] 1.0000000 0.3508197 0.2746316 0.2746316
 ##' #[2,] 0.3508197 1.0000000 0.2746316 0.2746316
 ##' #[3,] 0.2746316 0.2746316 1.0000000 0.3508197
 ##' #[4,] 0.2746316 0.2746316 0.3508197 1.0000000
-##'
+##' #
 ##' #$pairwise_alpha
 ##' #[1] 0.006657461
-##'
+##' #
 ##' #$critical_val
 ##' #[1] 2.475233
-##'
+
 
 fwer_critical <- function(ntrt, fwer, corMat, seed=123) {
 

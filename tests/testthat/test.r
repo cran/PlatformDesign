@@ -27,11 +27,11 @@ test_that("test one_stage_multiarm()", {
 
 test_that("test one_design()", {
   res <- one_design(n2 = 107, n0_2 = 198, nt = 30, K = 2, M = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)
-  expect_equal(res$n1, 101)
-  expect_equal(res$n0_1, 143)
-  expect_equal(res$critical_value2, 2.475233, tolerance=1e-6)
-  expect_equal(res$marginal.power2, 0.80011, tolerance=1e-6)
-  expect_equal(res$disjunctive.power2, 0.9853799, tolerance=1e-4)
+  expect_equal(res$design_Karm$n1, 101)
+  expect_equal(res$design_Karm$n0_1, 143)
+  expect_equal(res$designs$critical_value2, 2.475233, tolerance=1e-6)
+  expect_equal(res$designs$marginal.power2, 0.80011, tolerance=1e-6)
+  expect_equal(res$designs$disjunctive.power2, 0.9853799, tolerance=1e-4)
 })
 
 test_that("test one_design2()", {
@@ -51,26 +51,16 @@ test_that("test one_design2()", {
   Power1 <- multi$Power1
   z_alpha1 <- multi$z_alpha1
 
-  # if (K == M) {
-  #   S <- 2 * N1
-  # } else {
-  #   S <- ceiling((z_alpha1 + z_beta1)^2/delta^2 * (2 + 2 * sqrt(K) + 2 * sqrt(M) + K + M))
-  # }
-  #
-  # pair <- admiss(n1, n0_1, nt, ntrt, S)
-
   res <- one_design2(K = 2, M = 2,
     n1 = n1, n0_1 = n0_1, n2 = 107, n0_2 = 198,
     nt = nt, n0t = n0t, A1,
-    fwer = 0.025, Power1 = multi$Power1,
-    z_alpha1 = z_alpha1, z_beta1 = z_beta1,
-    marginal.power = 0.8,
-    delta = 0.4)
+    fwer = 0.025,
+    z_alpha1 = z_alpha1, z_beta1 = z_beta1)
 
 expect_equal(res$N2, 669)
   expect_equal(res$A2, 2.012987, tolerance=1e-6)
   expect_equal(res$critical_value2, 2.475233, tolerance=1e-6)
   expect_equal(res$marginal.power2, 0.80011, tolerance=1e-6)
-  expect_equal(res$disjunctive.power2, 0.9853799, tolerance=1e-6)
+  expect_equal(res$disjunctive.power2, 0.9853799, tolerance=1e-5)
 
 })
