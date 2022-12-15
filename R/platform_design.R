@@ -30,12 +30,17 @@
 ##'  between controlling for fwer or pwer and input a value for this argument if fwer is chosen
 ##' @param pwer the pair-wise type I error rate, default to be null, users need to choose between
 ##'        controlling for fwer or pwer and input a value for this argument if pwer is chosen
-##' @param marginal.power the marginal power for each experimental-control comparison
-##' @param min.marginal.power the user-defined lower limit of the marginal power in the K+M-experimental arm
-##'        trial, default to be the same as the marginal power
+##' @param marginal.power the marginal power for each experimental-control comparison in the
+##'        K-experimental arm trial. This is also the marginal power the algorithm aims to achieve
+##'        in the K+M-experimental arm when min.marginal.power=marginal.power (default option).
+##' @param min.marginal.power the marginal power the function aims to achieve in the K+M-experimental
+##'        arm trial, default to be the same as the marginal power of the K-experimental arm trial.
+##'        It will be the marginal power of the K+M-experimental arm if optimal design exists.
+##'        Don't change the default unless you need to achieve a marginal power level different than
+##'        that of the K-experimental arm trial.
 ##' @param delta the standardized effect size expected to be detected in the trial
 ##' @param seed an integer used in random number generation for numerically evaluating
-##'  integration, default = 123.
+##'  integration, default = 123
 ##'
 ##' @return The function returns a list, including \bold{design_Karm}, \bold{designs},
 ##'  \bold{flag.dp}, \bold{flag.mp}, and \bold{flag.dpmp}.

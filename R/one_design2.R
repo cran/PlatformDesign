@@ -1,4 +1,4 @@
-##' Provide design parameters based on n1, n0_1, n2, n0_2, while controlling for FWER
+##' Provide design parameters based on n1, n0_1, n2, n0_2, while controlling for FWER or PWER
 ##'
 ##'Given n1, n0_1, n2 and n0_2, provide the design parameters for one single design, while controlling for FWER
 ##' @title Calculate design parameters based on user-defined n, n0, n2 and n0_2 for adding M new experimental arms

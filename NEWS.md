@@ -1,9 +1,7 @@
-# changes in version 2.1.1
+# changes in version 2.1.4
 
 * Enhancements
-  - for platform_design(), one_stage_multiarm() and one_design(), now users can choose to control either
-    family-wise or pair-wiser type-I error rate.
-  - for platform_design(), the function now returns the number of patients saved in the K+M-experimental     arm trial compared to conducting one K-experimental arm and one M-experimental arm trial separately.
+  - the function platform_design2(), a faster version of platform_design(), is now added to the package. The usage of this function is described in Example 3 in the vignettes.
+  - In the help page of platform_design(), more detailed descriptions about arguments marginal.power and min.marginal.power are now added.
   
-* Bug fixes
-  - for platform_design(), the error used to occur when K is not equal to M is now fixed.
+

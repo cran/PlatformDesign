@@ -70,3 +70,25 @@ ggplot(data=pair3, aes(x=Var1, y=Var2)) +
 #  design2 <- platform_design(nt=30, K=2, M=2, pwer=0.025, marginal.power=0.8, delta=0.4,seed=123)
 #  design2$designs
 
+## ----eval=F-------------------------------------------------------------------
+#  start_time <- Sys.time()
+#  test <- platform_design2(nt = 30, K = 2, M = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)
+#  end_time <- Sys.time()
+#  end_time - start_time
+#  # Time difference of 41.85487 secs
+
+## ----eval=F-------------------------------------------------------------------
+#  start_time <- Sys.time()
+#  test2 <- platform_design(nt = 30, K = 2, M = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)
+#  end_time <- Sys.time()
+#  end_time - start_time
+#  # Time difference of 8.188013 mins
+
+## -----------------------------------------------------------------------------
+start_time <- Sys.time()
+platform_design2(nt = 50, K = 2, M = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)
+end_time <- Sys.time()
+
+# Time difference
+end_time - start_time
+

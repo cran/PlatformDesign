@@ -56,7 +56,7 @@ period of the 2+2-experimental arm trial. A2 denotes the
 allocation ratio during the the first part of the second period,
 when all four experiments arms are open. A3 is equal to A1.](../vignettes/newArm.PNG)
 
-## An example of the optimal two-period multiarm trial design with delayed arms, controlling for FWER
+## Example 1: the optimal two-period multiarm trial design with delayed arms, controlling for FWER
 The following steps contain two parts: 1) Steps 1 to 5 derive the design parameters in the K-experimental arm trial that the K+M-experimental arm trial is based on. The K+M-experimental
 arm trial is based on the K-experimental arm trial in the sense that we will keep the same FWER and marginal power for the K+M-experimental arm trial as in the K-experimental arm trial, despite M new experimental arms are added during the second period of the K+M experimental
 arm trial. 2) Steps 6 to 14 illustrate how the design parameters are calculated for the K+M-experimental arm trial.
@@ -291,7 +291,7 @@ partially compromises the goal of the design.
 	2. Go back to Step 6 to set up a smaller $n_t$ (and therefore smaller $n_{0t}$) - that is, increasing overlapping among initially and later added experimental arms. The rationale is the later the new arms are added, the less likely we can find designs satisfying both limits defined in Step 7. After that, repeat Steps 8 to 14 again. This is only feasible if the situation allows us to change the timing of adding new arm. 
 	3. Consider controlling for PWER instead of FWER as illustrated in the next example.
 	
-## An example of the optimal two-period multiarm trial design with delayed arms, controlling for PWER
+## Example 2: the optimal two-period multiarm trial design with delayed arms, controlling for PWER
 If users do not wish to control FWER, or if controlling for FWER can not be achieved given required power levels, then we recommend using the function platform Design(.) with the argument `fwer` replaced by `pwer` to plan for the K+M-experimental arm trial. If we plan to add 2 new experimental arms when 30 patients have already been enrolled in each of the 2 initial experimental arms, given the pair-wise type-I error controlled at 0.025 and the marginal power
 equal to 0.8, we can use the following code to get the design parameters. Here, five optimal designs are recommended and each row is a individual design. Notably, we can save 87 patients with this design compared to 2 separate multiarm trials.
 ```{r, eval=F}
@@ -301,6 +301,36 @@ design2$designs
 ![Fig 3. Recommended optimal designs when nt=30 in a 2+2-trial](../vignettes/software_res2.PNG)
 
 The main difference between using `pwer` instead of `fwer` in platform Design(.) is that it does not use the Dunnett method to derive critical values, instead, it calculates that directly from the user-defined pair-wise type I error. Notably, the upper limit $S$ for the total sample size $N_2$ that used to find the admissible set when controlling for PWER, is constructed using the multiarm trials (one K- and one M-experimental arm trial) which are also controlling for PWER in the function platform Design(.). The sample sizes for the multiarm trials (controlling for PWER) can also be calculated with the function one stage multiarm(.). Other aspects of the algorithms are similar between the two applications of the platform Design(.) function.
+
+## Example 3: using platform_design2(), a faster version of platform_design().
+The function `platform_design2()` is a faster version of `platform_design()`. It adopts a more efficient algorithm to find optimal design(s) for a two-period K+M experimental arm platform trial by searching for the optimal design starting from the maximum possible `N_2` value. The usage of this function is exactly the same as with `platform_design()`, except platform_design2() returns `NULL` for `$design` when optimal design does not exist and will not provide the sub-optimal design which only satisfying the minimum power level requirement for the disjunctive power. When optimal design exists, the results from the two functions are the same.
+
+The two code chunks below can be used to compare time used to find the optimal design using `platform_design2()` and `platform_design()`.
+```{r eval=F}
+start_time <- Sys.time()
+test <- platform_design2(nt = 30, K = 2, M = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)
+end_time <- Sys.time()
+end_time - start_time
+# Time difference of 41.85487 secs
+```
+
+```{r eval=F}
+start_time <- Sys.time()
+test2 <- platform_design(nt = 30, K = 2, M = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)
+end_time <- Sys.time()
+end_time - start_time
+# Time difference of 8.188013 mins
+```
+Notably, the maximum time-saving is with the situations when the optimal design does not exist given the conditions specified by the user.
+```{r}
+start_time <- Sys.time()
+platform_design2(nt = 50, K = 2, M = 2, fwer = 0.025, marginal.power = 0.8, delta = 0.4)
+end_time <- Sys.time()
+
+# Time difference
+end_time - start_time
+```
+
 
 ## Author(s)
     Xiaomeng Yuan, Haitao Pan
